@@ -1,41 +1,30 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5.0)
 project(mutable_transform_publisher)
 
-add_compile_options(-std=c++11 -Wall -Wextra)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  message_generation
-  tf2
-  tf2_ros
-)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra)
+endif()
 
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-add_service_files(
-  FILES
-  SetTransform.srv
+rosidl_generate_interfaces(${PROJECT_NAME}
+  srv/SetTransform.srv
+  DEPENDENCIES builtin_interfaces geometry_msgs
 )
 
-generate_messages(
-  DEPENDENCIES
-  geometry_msgs
-)
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-    ${YAML_CPP_INCLUDE_DIRS}
-  LIBRARIES
-    ${PROJECT_NAME}
-    ${PROJECT_NAME}_yaml
-  CATKIN_DEPENDS
-    tf2
-    tf2_ros
-    geometry_msgs
-    message_runtime
-   DEPENDS
-    YAML_CPP
-)
 
 ###########
 ## Build ##
@@ -49,23 +38,29 @@ include_directories(
 
 
 # Core ROS capability
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME}_core
   src/${PROJECT_NAME}/publisher.cpp
   src/${PROJECT_NAME}/mutable_transform_publisher.cpp
 )
 
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(${PROJECT_NAME}_core ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_core
+                      ${rclcpp_LIBRARIES}
+                      ${tf2_LIBRARIES}
+                      ${tf2_ros_LIBRARIES}
+                      )
 
 # Yaml Stuff
 add_library(${PROJECT_NAME}_yaml
   src/${PROJECT_NAME}/yaml_serialization.cpp
 )
 
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(${PROJECT_NAME}_yaml ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_yaml
+                      ${YAML_CPP_LIBRARIES}
+                      )
 
 
 # Primary Node
@@ -73,22 +68,40 @@ add_executable(${PROJECT_NAME}_node src/mutable_transform_publisher_node.cpp)
 
 set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME mutable_transform_pub PREFIX "")
 
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${PROJECT_NAME}_yaml)
+target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME}_core ${PROJECT_NAME}_yaml)
+
+ament_export_include_directories(include
+                                ${YAML_CPP_INCLUDE_DIRS}
+                                )
+
+ament_export_libraries(${PROJECT_NAME}_core
+                       ${PROJECT_NAME}_yaml
+                       )
+
+ament_export_dependencies(rclcpp
+                          rosidl_default_runtime
+                          )
+
+ament_package()
 
 #############
 ## Install ##
 #############
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+set(ROS_LIB_DESTINATION lib)
+set(ROS_BIN_DESTINATION bin)
+set(ROS_INCLUDE_DESTINATION include)
+
+install(TARGETS ${PROJECT_NAME}_core ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
+  ARCHIVE DESTINATION ${ROS_LIB_DESTINATION}
+  LIBRARY DESTINATION ${ROS_LIB_DESTINATION}
+  RUNTIME DESTINATION ${ROS_BIN_DESTINATION}
 )
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
- DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+ DESTINATION ${ROS_INCLUDE_DESTINATION}
  FILES_MATCHING PATTERN "*.h"
 )
