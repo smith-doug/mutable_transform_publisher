@@ -1,9 +1,10 @@
 #ifndef MCT_MUTABLE_TRANSFORM_PUBLISHER_H
 #define MCT_MUTABLE_TRANSFORM_PUBLISHER_H
+#include <rclcpp/rclcpp.hpp>
 
 #include "tf2_ros/transform_broadcaster.h"
 #include "mutable_transform_publisher/publisher.h"
-#include "mutable_transform_publisher/SetTransform.h"
+#include "mutable_transform_publisher/srv/SetTransform.hpp"
 
 #include <memory>
 #include <math.h>
@@ -14,9 +15,9 @@ namespace mutable_transform_publisher
 class MutableTransformPublisher
 {
 public:
-  MutableTransformPublisher(ros::NodeHandle& nh);
+  MutableTransformPublisher(rclcpp::Node& node);
 
-  bool add(const geometry_msgs::TransformStamped& transform, ros::Duration period);
+  bool add(const geometry_msgs::TransformStamped& transform, const rclcpp::Duration& period);
 
   std::vector<geometry_msgs::TransformStamped> getAllTransforms() const;
 

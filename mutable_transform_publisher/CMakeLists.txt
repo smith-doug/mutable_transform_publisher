@@ -19,8 +19,12 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
+set(srv_files
+    "srv/SetTransform.srv"
+    )
+
 rosidl_generate_interfaces(${PROJECT_NAME}
-  srv/SetTransform.srv
+  ${srv_files}
   DEPENDENCIES builtin_interfaces geometry_msgs
 )
 
@@ -32,8 +36,11 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
+  ${rclcpp_INCLUDE_DIRS}
   ${YAML_CPP_INCLUDE_DIRS}
+  ${tf2_INCLUDE_DIRS}
+  ${tf2_ros_INCLUDE_DIRS}
+  ${geometry_msgs_INCLUDE_DIRS}
 )
 
 
@@ -43,12 +50,18 @@ add_library(${PROJECT_NAME}_core
   src/${PROJECT_NAME}/mutable_transform_publisher.cpp
 )
 
-ament_target_dependencies(${PROJECT_NAME}_core ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ament_target_dependencies(${PROJECT_NAME}_core
+                          "geometry_msgs"
+                          "rclcpp"
+                          "tf2"
+                          "tf2_ros"
+                          )
 
 target_link_libraries(${PROJECT_NAME}_core
                       ${rclcpp_LIBRARIES}
                       ${tf2_LIBRARIES}
                       ${tf2_ros_LIBRARIES}
+                      ${geometry_msgs_LIBRARIES}
                       )
 
 # Yaml Stuff
@@ -101,7 +114,9 @@ install(TARGETS ${PROJECT_NAME}_core ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
 )
 
 ## Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
+install(DIRECTORY include/${PROJECT_NAME}
  DESTINATION ${ROS_INCLUDE_DESTINATION}
- FILES_MATCHING PATTERN "*.h"
+# FILES_MATCHING PATTERN "*.h"
 )
+
+install(FILES mapping_rules.yaml DESTINATION share/${PROJECT_NAME})
