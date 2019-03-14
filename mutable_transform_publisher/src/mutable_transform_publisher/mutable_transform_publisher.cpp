@@ -1,5 +1,4 @@
 #include "mutable_transform_publisher/mutable_transform_publisher.h"
-#include <cstdio>
 
 static const std::chrono::milliseconds default_period (1000);
 

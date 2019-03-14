@@ -1,6 +1,5 @@
 #include "mutable_transform_publisher/publisher.h"
 #include <rclcpp/rclcpp.hpp>
-#include <cstdio>
 #include <chrono>
 
 mutable_transform_publisher::Publisher::Publisher(const std::string& source,
