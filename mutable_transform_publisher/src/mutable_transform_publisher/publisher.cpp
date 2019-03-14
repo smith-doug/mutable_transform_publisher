@@ -1,5 +1,6 @@
 #include "mutable_transform_publisher/publisher.h"
 #include <rclcpp/rclcpp.hpp>
+#include <cstdio>
 
 mutable_transform_publisher::Publisher::Publisher(const std::string& source,
                                                   const std::string& target,
@@ -14,10 +15,12 @@ mutable_transform_publisher::Publisher::Publisher(const std::string& source,
   tf_.transform = init_tf;
   tf_.header.frame_id = source;
   tf_.child_frame_id = target;
-
+  std::printf("making a publisher\n");
 //  ros::NodeHandle nh;
   pub_timer_ = this -> create_wall_timer(period,
                                          [this]() {
+      // TODO: never hit callback
+      std::printf("callback\n");
       tf_.header.stamp = rclcpp::Node::now();
       broadcaster_.sendTransform(tf_);
   });

@@ -1,4 +1,5 @@
 #include "mutable_transform_publisher/mutable_transform_publisher.h"
+#include <cstdio>
 
 static const std::chrono::milliseconds default_period (1000);
 
@@ -90,21 +91,26 @@ bool mutable_transform_publisher::MutableTransformPublisher::validate(const geom
 {
   if (t.child_frame_id.empty())
   {
+    std::printf("transform's child_frame_id is empty\n");
 //    ROS_WARN_STREAM("transform's child_frame_id is empty");
     return false;
   }
 
   if (t.header.frame_id.empty())
   {
+      std::printf("transform's header.frame_id is empty\n");
+
 //    ROS_WARN_STREAM("transform's header.frame_id is empty");
     return false;
   }
 
   if (!isNormalized(t.transform.rotation))
   {
+      std::printf("transform quaternion is not normalized\n");
+
 //    ROS_WARN_STREAM("transform quaternion is not normalized");
     return false;
   }
-
+  std::printf("transform validated!\n");
   return true;
 }

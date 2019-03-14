@@ -80,6 +80,7 @@ ament_export_include_directories(include
 
 ament_export_libraries(${PROJECT_NAME}
                        ${PROJECT_NAME}_yaml
+                       ${PROJECT_NAME}_node
                        )
 
 ament_export_dependencies(rclcpp
@@ -100,6 +101,9 @@ install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
   LIBRARY DESTINATION ${ROS_LIB_DESTINATION}
   RUNTIME DESTINATION ${ROS_BIN_DESTINATION}
 )
+
+install(TARGETS ${PROJECT_NAME}_node
+        DESTINATION lib/${PROJECT_NAME})
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}

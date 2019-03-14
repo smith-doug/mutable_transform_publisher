@@ -57,9 +57,14 @@ int main(int argc, char** argv)
 //  std::string yaml_path;
 //  const bool yaml_specified = pnh.getParam("yaml_path", yaml_path);
 
-  const bool yaml_specified = true;
-
-  std::string yaml_path_param = parameters_client->get_parameter<std::string>("yaml_path");
+  bool yaml_specified = false;
+  std::string yaml_path_param;
+  try {
+      yaml_path_param = parameters_client->get_parameter<std::string>("yaml_path");
+      yaml_specified = true;
+  } catch (std::runtime_error &e) {
+      RCLCPP_INFO(node->get_logger(), "yaml_path param not set");
+  }
   bool commit = parameters_client->get_parameter<bool>("commit", true);
 
 //  const bool commit = pnh.param<bool>("commit", true);
@@ -70,6 +75,7 @@ int main(int argc, char** argv)
   if (yaml_specified)
   {
     if (!loadAndAddPublishers(yaml_path_param, pub)) return 1;
+    RCLCPP_INFO(node->get_logger(), "Added publishers");
   }
 
   rclcpp::spin(node);
@@ -77,6 +83,7 @@ int main(int argc, char** argv)
   if (yaml_specified && commit)
   {
     if (!savePublishers(yaml_path_param, pub)) return 2;
+    RCLCPP_INFO(node->get_logger(), "Saving updated yaml config");
   }
 
   rclcpp::shutdown();
