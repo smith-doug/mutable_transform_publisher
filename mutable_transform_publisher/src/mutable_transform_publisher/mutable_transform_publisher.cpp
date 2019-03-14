@@ -8,9 +8,10 @@ static bool isNormalized(const geometry_msgs::msg::Quaternion& q, const double e
   return std::abs(1.0 - sum_sq) < eps;
 }
 
-mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node)
+mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node) :
+    broadcaster_(node)
 {
-  auto set_transform_server = node->create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", &MutableTransformPublisher::setTransformCallback, this);
+  auto set_transform_server = node->create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_msgs::msg::TransformStamped& transform,

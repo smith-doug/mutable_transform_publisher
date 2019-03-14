@@ -6,7 +6,7 @@
 bool loadAndAddPublishers(const std::string& yaml_path,
                           mutable_transform_publisher::MutableTransformPublisher& pub)
 {
-  std::vector<geometry_msgs::TransformStamped> tfs;
+  std::vector<geometry_msgs::msg::TransformStamped> tfs;
   if (!mutable_transform_publisher::deserialize(yaml_path, tfs))
   {
 //    ROS_ERROR_STREAM("Unable to parse yaml file at: " << yaml_path);
@@ -15,7 +15,7 @@ bool loadAndAddPublishers(const std::string& yaml_path,
 
   for (const auto& t : tfs)
   {
-    if (!pub.add(t, ros::Duration(1.0)))
+    if (!pub.add(t, std::chrono::milliseconds(1000)))
     {
 //      ROS_ERROR_STREAM("Unable to add transform");
       return false;
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 //  ros::NodeHandle nh, pnh ("~");
 
   auto parameters_client = std::make_shared<rclcpp::SyncParametersClient>(node);
-  while (!parameters_client->wait_for_service(1s)) {
+  while (!parameters_client->wait_for_service(std::chrono::seconds(1))) {
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(node->get_logger(), "Interrupted while waiting for the service. Exiting.");
       return 0;
@@ -65,18 +65,18 @@ int main(int argc, char** argv)
 //  const bool commit = pnh.param<bool>("commit", true);
 
   // Create the publisher
-  mutable_transform_publisher::MutableTransformPublisher pub;
+  mutable_transform_publisher::MutableTransformPublisher pub(node);
 
   if (yaml_specified)
   {
-    if (!loadAndAddPublishers(yaml_path_param.value_to_string(), pub)) return 1;
+    if (!loadAndAddPublishers(yaml_path_param, pub)) return 1;
   }
 
-  rclcpp::spin();
+  rclcpp::spin(node);
 
   if (yaml_specified && commit)
   {
-    if (!savePublishers(yaml_path_param.value_to_string(), pub)) return 2;
+    if (!savePublishers(yaml_path_param, pub)) return 2;
   }
 
   rclcpp::shutdown();
