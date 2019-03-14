@@ -1,24 +1,24 @@
 #include "mutable_transform_publisher/mutable_transform_publisher.h"
 
-static const ros::Duration default_period (1.0);
+static const std::chrono::milliseconds default_period (1000);
 
-static bool isNormalized(const geometry_msgs::Quaternion& q, const double eps = 1e-6)
+static bool isNormalized(const geometry_msgs::msg::Quaternion& q, const double eps = 1e-6)
 {
   const auto sum_sq = sqrt(pow(q.w, 2) + pow(q.x, 2) + pow(q.y, 2) + pow(q.z, 2));
   return std::abs(1.0 - sum_sq) < eps;
 }
 
-mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(ros::NodeHandle& nh)
+mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node)
 {
-  set_transform_server_ = nh.advertiseService("set_transform", &MutableTransformPublisher::setTransformCallback, this);
+  auto set_transform_server = node->create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", &MutableTransformPublisher::setTransformCallback, this);
 }
 
-bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_msgs::TransformStamped& transform,
-                                                                 ros::Duration period)
+bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_msgs::msg::TransformStamped& transform,
+                                                                 const std::chrono::milliseconds& period)
 {
   if (!validate(transform))
   {
-    ROS_WARN_STREAM("Transform push rejected: " << transform);
+//    ROS_WARN_STREAM("Transform push rejected: " << transform);
     return false;
   }
 
@@ -30,10 +30,10 @@ bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_
   return r.second;
 }
 
-std::vector<geometry_msgs::TransformStamped>
+std::vector<geometry_msgs::msg::TransformStamped>
 mutable_transform_publisher::MutableTransformPublisher::getAllTransforms() const
 {
-  std::vector<geometry_msgs::TransformStamped> result;
+  std::vector<geometry_msgs::msg::TransformStamped> result;
   result.reserve(pub_map_.size());
 
   for (const auto& k : pub_map_)
@@ -43,19 +43,21 @@ mutable_transform_publisher::MutableTransformPublisher::getAllTransforms() const
   return result;
 }
 
-bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallback(SetTransformRequest& req,
-                                                                                  SetTransformResponse& res)
+bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallback(const std::shared_ptr<rmw_request_id_t> request_header,
+                                                                                  const std::shared_ptr<mutable_transform_publisher_msgs::srv::SetTransform::Request> req,
+                                                                                  std::shared_ptr<mutable_transform_publisher_msgs::srv::SetTransform::Response> res)
 {
-  auto* pub = findPublisher(req.transform.header.frame_id, req.transform.child_frame_id);
+  (void)request_header;
+  auto* pub = findPublisher(req->transform.header.frame_id, req->transform.child_frame_id);
   if (pub)
   {
-    res.was_replaced = true;
-    res.old_transform = pub->setTransform(req.transform.transform);
+    res->was_replaced = true;
+    res->old_transform = pub->setTransform(req->transform.transform);
   }
   else
   {
-    res.was_replaced = false;
-    add(req.transform, default_period);
+    res->was_replaced = false;
+    add(req->transform, default_period);
   }
 
   return true;
@@ -83,23 +85,23 @@ std::string mutable_transform_publisher::MutableTransformPublisher::makeKey(cons
   return source + target;
 }
 
-bool mutable_transform_publisher::MutableTransformPublisher::validate(const geometry_msgs::TransformStamped& t) const
+bool mutable_transform_publisher::MutableTransformPublisher::validate(const geometry_msgs::msg::TransformStamped& t) const
 {
   if (t.child_frame_id.empty())
   {
-    ROS_WARN_STREAM("transform's child_frame_id is empty");
+//    ROS_WARN_STREAM("transform's child_frame_id is empty");
     return false;
   }
 
   if (t.header.frame_id.empty())
   {
-    ROS_WARN_STREAM("transform's header.frame_id is empty");
+//    ROS_WARN_STREAM("transform's header.frame_id is empty");
     return false;
   }
 
   if (!isNormalized(t.transform.rotation))
   {
-    ROS_WARN_STREAM("transform quaternion is not normalized");
+//    ROS_WARN_STREAM("transform quaternion is not normalized");
     return false;
   }
 
