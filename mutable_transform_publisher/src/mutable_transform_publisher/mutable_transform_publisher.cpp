@@ -14,10 +14,7 @@ mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublishe
   , node_(node)
   , set_transform_server_(node -> create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)))
 {
-//    auto thread_fn = [this]() -> void {rclcpp::spin(node_);};
-//    static std::thread thread(thread_fn);
 
-//  set_transform_server_ = node_ -> create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_msgs::msg::TransformStamped& transform,
@@ -25,7 +22,7 @@ bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_
 {
   if (!validate(transform))
   {
-//    ROS_WARN_STREAM("Transform push rejected: " << transform);
+    RCLCPP_WARN(node_->get_logger(), "Transform push rejected");
     return false;
   }
 
@@ -56,7 +53,6 @@ bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallbac
 {
   (void)request_header;
 
-  std::printf("set transform cb\n");
   auto* pub = findPublisher(req->transform.header.frame_id, req->transform.child_frame_id);
   if (pub)
   {
@@ -98,26 +94,20 @@ bool mutable_transform_publisher::MutableTransformPublisher::validate(const geom
 {
   if (t.child_frame_id.empty())
   {
-    std::printf("transform's child_frame_id is empty\n");
-//    ROS_WARN_STREAM("transform's child_frame_id is empty");
-    return false;
+      RCLCPP_WARN(node_->get_logger(), "transform's child_frame_id is empty");
+      return false;
   }
 
   if (t.header.frame_id.empty())
   {
-      std::printf("transform's header.frame_id is empty\n");
-
-//    ROS_WARN_STREAM("transform's header.frame_id is empty");
+    RCLCPP_WARN(node_->get_logger(), "transform's header.frame_id is empty");
     return false;
   }
 
   if (!isNormalized(t.transform.rotation))
   {
-      std::printf("transform quaternion is not normalized\n");
-
-//    ROS_WARN_STREAM("transform quaternion is not normalized");
+    RCLCPP_WARN(node_->get_logger(), "transform quaternion is not normalized");
     return false;
-  }
-  std::printf("transform validated!\n");
+  }  
   return true;
 }

@@ -17,11 +17,7 @@ mutable_transform_publisher::Publisher::Publisher(const std::string& source,
   tf_.transform = init_tf;
   tf_.header.frame_id = source;
   tf_.child_frame_id = target;
-  std::printf("making a publisher\n");
-
-  pub_timer_ = node_ -> create_wall_timer(std::chrono::seconds(1), std::bind(&Publisher::onPublishTimeout, this));
-//  auto thread_fn = [this]() -> void {rclcpp::spin(node_);};
-//  static std::thread thread(thread_fn);
+  pub_timer_ = node_ -> create_wall_timer(std::chrono::milliseconds(period), std::bind(&Publisher::onPublishTimeout, this));
 }
 
 geometry_msgs::msg::TransformStamped mutable_transform_publisher::Publisher::setTransform(const geometry_msgs::msg::Transform& t)
@@ -38,13 +34,6 @@ geometry_msgs::msg::TransformStamped mutable_transform_publisher::Publisher::get
 
 void mutable_transform_publisher::Publisher::onPublishTimeout()
 {
-  std::printf("callback\n");
   tf_.header.stamp = node_->now();
   broadcaster_.sendTransform(tf_);
 }
-
-//void mutable_transform_publisher::Publisher::onPublishTimeout(const ros::TimerEvent& e)
-//{
-//  tf_.header.stamp = e.current_real;
-//  broadcaster_.sendTransform(tf_);
-//}

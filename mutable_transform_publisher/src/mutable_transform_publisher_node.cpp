@@ -9,7 +9,8 @@ bool loadAndAddPublishers(const std::string& yaml_path,
   std::vector<geometry_msgs::msg::TransformStamped> tfs;
   if (!mutable_transform_publisher::deserialize(yaml_path, tfs))
   {
-//    ROS_ERROR_STREAM("Unable to parse yaml file at: " << yaml_path);
+       // TODO: Print error for ROS2
+//    RCLCPP_ERROR(node->get_logger(), "Unable to add transform");
     return false;
   }
 
@@ -17,7 +18,8 @@ bool loadAndAddPublishers(const std::string& yaml_path,
   {
     if (!pub.add(t, std::chrono::milliseconds(1000)))
     {
-//      ROS_ERROR_STREAM("Unable to add transform");
+        // TODO: Print error for ROS2
+//      RCLCPP_ERROR(node->get_logger(), "Unable to add transform");
       return false;
     }
   }
@@ -70,34 +72,13 @@ int main(int argc, char** argv)
     RCLCPP_INFO(node->get_logger(), "Added publishers");
   }
 
-// BUG: Adding this callback causes other callbacks to print/handle as expected?
-//  auto timer_callback = [node]() -> void { RCLCPP_INFO(node->get_logger(), "Hello, world!");};
-//  rclcpp::TimerBase::SharedPtr timer = node -> create_wall_timer(std::chrono::milliseconds(900), timer_callback);
-
-  RCLCPP_INFO(node->get_logger(), "Spinning...");
-
-
-//  auto thread_fn = [node]() -> void {rclcpp::spin(node);};
-//  static std::thread thread(thread_fn);
-
-
   rclcpp::spin(node);
-
-
-//    rclcpp::executors::SingleThreadedExecutor exec;
-//    exec.add_node(node);
-//    while(rclcpp::ok()) exec.spin_once();
-
-  RCLCPP_INFO(node->get_logger(), "Quitting");
-
 
   if (yaml_specified && commit)
   {
     if (!savePublishers(yaml_path_param, pub)) return 2;
     RCLCPP_INFO(node->get_logger(), "Saving updated yaml config");
   }
-
-////  exec.remove_node(node);
 
   rclcpp::shutdown();
   return 0;

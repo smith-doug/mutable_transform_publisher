@@ -1,6 +1,5 @@
 #include "mutable_transform_publisher/yaml_serialization.h"
 #include <yaml-cpp/yaml.h>
-//#include <ros/console.h>
 #include <fstream>
 
 static geometry_msgs::msg::TransformStamped parseTransform(const YAML::Node& n)
@@ -51,6 +50,7 @@ bool mutable_transform_publisher::deserialize(const std::string& path, std::vect
   }
   catch (const YAML::Exception& e)
   {
+// TODO: Print this in ROS2-Land
 //    ROS_ERROR_STREAM(e.what());
     return false;
   }

@@ -9,7 +9,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
-
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -29,7 +28,6 @@ include_directories(
   ${tf2_INCLUDE_DIRS}
   ${tf2_ros_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
-#  ${mutable_transform_publisher_msgs_INCLUDE_DIRS}
 )
 
 
@@ -108,5 +106,5 @@ install(TARGETS ${PROJECT_NAME}_node
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}
  DESTINATION ${ROS_INCLUDE_DESTINATION}
-# FILES_MATCHING PATTERN "*.h"
+ FILES_MATCHING PATTERN "*.h"
 )
