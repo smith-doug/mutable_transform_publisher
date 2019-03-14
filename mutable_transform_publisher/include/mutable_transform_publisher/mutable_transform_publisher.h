@@ -32,8 +32,9 @@ private:
 
   bool validate(const geometry_msgs::msg::TransformStamped& t) const;
 
+  std::shared_ptr<rclcpp::Node> node_;
   tf2_ros::TransformBroadcaster broadcaster_;
-//  ros::ServiceServer set_transform_server_;
+  rclcpp::Service<mutable_transform_publisher_msgs::srv::SetTransform>::SharedPtr set_transform_server_;
   std::map<std::string, std::unique_ptr<Publisher>> pub_map_;
 };
 

@@ -9,22 +9,24 @@
 namespace mutable_transform_publisher
 {
 
-class Publisher : public rclcpp::Node
+class Publisher
 {
 public:
   Publisher(const std::string& source,
             const std::string& target,
             const std::chrono::milliseconds& period,
             const geometry_msgs::msg::Transform& init_tf,
-            tf2_ros::TransformBroadcaster& broadcaster);
+            tf2_ros::TransformBroadcaster& broadcaster,
+            std::shared_ptr<rclcpp::Node> node);
 
   geometry_msgs::msg::TransformStamped setTransform(const geometry_msgs::msg::Transform& t);
 
   geometry_msgs::msg::TransformStamped getTransform() const;
 
 private:
-//  void onPublishTimeout(const ros::TimerEvent& e);
+  void onPublishTimeout();
 
+  std::shared_ptr<rclcpp::Node> node_;
   std::string source_;
   std::string target_;
   geometry_msgs::msg::TransformStamped tf_;

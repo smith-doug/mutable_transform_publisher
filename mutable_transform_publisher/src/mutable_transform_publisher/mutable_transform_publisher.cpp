@@ -11,8 +11,13 @@ static bool isNormalized(const geometry_msgs::msg::Quaternion& q, const double e
 
 mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node) :
     broadcaster_(node)
+  , node_(node)
+  , set_transform_server_(node -> create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)))
 {
-  auto set_transform_server = node->create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+//    auto thread_fn = [this]() -> void {rclcpp::spin(node_);};
+//    static std::thread thread(thread_fn);
+
+//  set_transform_server_ = node_ -> create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_msgs::msg::TransformStamped& transform,
@@ -27,7 +32,7 @@ bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_
   const auto& source = transform.header.frame_id;
   const auto target = transform.child_frame_id;
   const auto key = makeKey(source, target);
-  std::unique_ptr<Publisher> pub (new Publisher(source, target, period, transform.transform, broadcaster_));
+  std::unique_ptr<Publisher> pub (new Publisher(source, target, period, transform.transform, broadcaster_, node_));
   const auto r = pub_map_.emplace(key, std::move(pub));
   return r.second;
 }
@@ -50,6 +55,8 @@ bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallbac
                                                                                   std::shared_ptr<mutable_transform_publisher_msgs::srv::SetTransform::Response> res)
 {
   (void)request_header;
+
+  std::printf("set transform cb\n");
   auto* pub = findPublisher(req->transform.header.frame_id, req->transform.child_frame_id);
   if (pub)
   {
