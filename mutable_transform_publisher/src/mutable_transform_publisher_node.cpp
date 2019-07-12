@@ -44,6 +44,8 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("mutable_tf_publisher");
 
+  node->declare_parameter("yaml_path");
+
   auto parameters_client = std::make_shared<rclcpp::SyncParametersClient>(node);
   while (!parameters_client->wait_for_service(std::chrono::seconds(1))) {
     if (!rclcpp::ok()) {
