@@ -46,24 +46,16 @@ int main(int argc, char** argv)
 
   node->declare_parameter("yaml_path");
 
-  auto parameters_client = std::make_shared<rclcpp::SyncParametersClient>(node);
-  while (!parameters_client->wait_for_service(std::chrono::seconds(1))) {
-    if (!rclcpp::ok()) {
-      RCLCPP_ERROR(node->get_logger(), "Interrupted while waiting for the service. Exiting.");
-      return 0;
-    }
-    RCLCPP_INFO(node->get_logger(), "service not available, waiting again...");
-  }
-
   bool yaml_specified = false;
   std::string yaml_path_param;
   try {
-      yaml_path_param = parameters_client->get_parameter<std::string>("yaml_path");
+      node->get_parameter<std::string>("yaml_path", yaml_path_param);
       yaml_specified = true;
   } catch (std::runtime_error &e) {
       RCLCPP_INFO(node->get_logger(), "yaml_path param not set");
   }
-  bool commit = parameters_client->get_parameter<bool>("commit", true);
+  bool commit;
+  node->get_parameter_or<bool>("commit", commit, true);
 
   // Create the publisher
   mutable_transform_publisher::MutableTransformPublisher pub(node);
