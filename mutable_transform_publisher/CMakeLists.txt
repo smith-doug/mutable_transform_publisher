@@ -103,6 +103,9 @@ install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
 install(TARGETS ${PROJECT_NAME}_node
         DESTINATION lib/${PROJECT_NAME})
 
+    install(DIRECTORY test
+        DESTINATION share/${PROJECT_NAME})
+
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}
  DESTINATION ${ROS_INCLUDE_DESTINATION}
