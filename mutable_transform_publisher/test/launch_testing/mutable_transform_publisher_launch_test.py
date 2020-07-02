@@ -128,3 +128,8 @@ class TestSetTransforms(unittest.TestCase):
         assert tform_updated.transform.rotation.y == tform_new.transform.rotation.y
         assert tform_updated.transform.rotation.z == tform_new.transform.rotation.z
 
+
+@launch_testing.post_shutdown_test()
+class TestYamlAfterShutdown(unittest.TestCase):
+    # TODO: test if the file is in the expected state after tests finish and nodes shut down
+    pass

@@ -17,6 +17,8 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
+find_package(launch_testing_ament_cmake REQUIRED)
+
 ###########
 ## Build ##
 ###########
@@ -71,6 +73,8 @@ set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME mutable_transf
 ament_target_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${PROJECT_NAME}_yaml)
+
+add_launch_test(test/launch_testing/mutable_transform_publisher_launch_test.py)
 
 ament_export_include_directories(include
                                 ${YAML_CPP_INCLUDE_DIRS}

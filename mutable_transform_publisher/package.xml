@@ -21,6 +21,7 @@
   <depend>yaml-cpp</depend>
 
   <test_depend>launch</test_depend>
+  <test_depend>launch-testing-ament-cmake</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>
