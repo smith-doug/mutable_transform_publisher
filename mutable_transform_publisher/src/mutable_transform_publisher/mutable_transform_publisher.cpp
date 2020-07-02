@@ -11,8 +11,8 @@ static bool isNormalized(const geometry_msgs::msg::Quaternion& q, const double e
 }
 
 mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node, const std::string& yaml_path, const bool& commit)
-  : broadcaster_(node)
-  , node_(node)
+  : node_(node)
+  , broadcaster_(node)
   , set_transform_server_(node -> create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)))
   , yaml_path_(yaml_path)
   , commit_(commit)
@@ -63,7 +63,7 @@ bool mutable_transform_publisher::MutableTransformPublisher::savePublishers(cons
 
   if (!mutable_transform_publisher::serialize(yaml_path, new_tfs))
   {
-    std::cerr << "mutable_transform_publisher: Unable to serialize transforms to " << yaml_path << "\n";
+    RCLCPP_ERROR(node_->get_logger(), "Failed to serialize transforms to path: " + yaml_path);
     return false;
   }
   return true;
@@ -102,7 +102,9 @@ bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallbac
 
   if (commit_)
   {
-    this->savePublishers(yaml_path_);
+    if (!this->savePublishers(yaml_path_))
+      RCLCPP_ERROR(node_->get_logger(), "Failed to serialize transforms to path: " + yaml_path_);
+
   }
 
   return true;

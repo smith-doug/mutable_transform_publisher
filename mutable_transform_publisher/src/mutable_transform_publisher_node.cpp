@@ -30,7 +30,7 @@ int main(int argc, char** argv)
   node->get_parameter_or<bool>("commit", commit, true);
 
   // Create the publisher
-  mutable_transform_publisher::MutableTransformPublisher pub(node, yaml_path_param);
+  mutable_transform_publisher::MutableTransformPublisher pub(node, yaml_path_param, commit);
 
   rclcpp::spin(node);
 
