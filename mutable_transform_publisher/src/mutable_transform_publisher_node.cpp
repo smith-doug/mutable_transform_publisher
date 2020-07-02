@@ -10,6 +10,10 @@ int main(int argc, char** argv)
   auto node = rclcpp::Node::make_shared("mutable_tf_publisher");
 
   node->declare_parameter("yaml_path");
+  node->declare_parameter("period");
+
+  double period;
+  node->get_parameter_or<double>("period", period, 0.1);
 
   bool yaml_specified = false;
   std::string yaml_path_param;
@@ -30,7 +34,7 @@ int main(int argc, char** argv)
   node->get_parameter_or<bool>("commit", commit, true);
 
   // Create the publisher
-  mutable_transform_publisher::MutableTransformPublisher pub(node, yaml_path_param, commit);
+  mutable_transform_publisher::MutableTransformPublisher pub(node, yaml_path_param, period, commit);
 
   rclcpp::spin(node);
 

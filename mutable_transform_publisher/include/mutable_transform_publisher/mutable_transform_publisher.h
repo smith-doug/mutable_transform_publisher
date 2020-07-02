@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <math.h>
+#include <cmath>
 
 namespace mutable_transform_publisher
 {
@@ -15,9 +16,9 @@ namespace mutable_transform_publisher
 class MutableTransformPublisher
 {
 public:
-  MutableTransformPublisher(rclcpp::Node::SharedPtr node, const std::string& yaml_path, const bool& commit = true);
+  MutableTransformPublisher(rclcpp::Node::SharedPtr node, const std::string& yaml_path, const double& period, const bool& commit = true);
 
-  bool add(const geometry_msgs::msg::TransformStamped& transform, const std::chrono::milliseconds& period);
+  bool add(const geometry_msgs::msg::TransformStamped& transform, const std::chrono::duration<double>& period);
 
   std::vector<geometry_msgs::msg::TransformStamped> getAllTransforms() const;
 
@@ -41,6 +42,7 @@ private:
   rclcpp::Service<mutable_transform_publisher_msgs::srv::SetTransform>::SharedPtr set_transform_server_;
   std::map<std::string, std::unique_ptr<Publisher>> pub_map_;
   std::string yaml_path_;
+  std::chrono::duration<double> period_;
   bool commit_;
 };
 

@@ -1,8 +1,5 @@
 #include "mutable_transform_publisher/mutable_transform_publisher.h"
 #include "mutable_transform_publisher/yaml_serialization.h"
-#include <cmath>
-
-static const std::chrono::milliseconds default_period (1000);
 
 static bool isNormalized(const geometry_msgs::msg::Quaternion& q, const double eps = 1e-6)
 {
@@ -10,18 +7,19 @@ static bool isNormalized(const geometry_msgs::msg::Quaternion& q, const double e
   return std::abs(1.0 - sum_sq) < eps;
 }
 
-mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node, const std::string& yaml_path, const bool& commit)
+mutable_transform_publisher::MutableTransformPublisher::MutableTransformPublisher(rclcpp::Node::SharedPtr node, const std::string& yaml_path, const double& period, const bool& commit)
   : node_(node)
   , broadcaster_(node)
   , set_transform_server_(node -> create_service<mutable_transform_publisher_msgs::srv::SetTransform>("set_transform", std::bind(&MutableTransformPublisher::setTransformCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)))
   , yaml_path_(yaml_path)
+  , period_(std::chrono::duration<double>(period))
   , commit_(commit)
 {
   loadAndAddPublishers(yaml_path_);
 }
 
 bool mutable_transform_publisher::MutableTransformPublisher::add(const geometry_msgs::msg::TransformStamped& transform,
-                                                                 const std::chrono::milliseconds& period)
+                                                                 const std::chrono::duration<double>& period)
 {
   if (!validate(transform))
   {
@@ -97,7 +95,7 @@ bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallbac
   else
   {
     res->was_replaced = false;
-    add(req->transform, default_period);
+    add(req->transform, period_);
   }
 
   if (commit_)
