@@ -128,6 +128,9 @@ class TestSetTransforms(unittest.TestCase):
         assert tform_updated.transform.rotation.y == tform_new.transform.rotation.y
         assert tform_updated.transform.rotation.z == tform_new.transform.rotation.z
 
+        # TODO: check if transform saved to file has expected contents
+        #
+
 
 @launch_testing.post_shutdown_test()
 class TestYamlAfterShutdown(unittest.TestCase):

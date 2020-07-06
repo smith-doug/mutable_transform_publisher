@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <math.h>
+#include <cmath>
 
 namespace mutable_transform_publisher
 {
@@ -15,13 +16,17 @@ namespace mutable_transform_publisher
 class MutableTransformPublisher
 {
 public:
-  MutableTransformPublisher(rclcpp::Node::SharedPtr node);
+  MutableTransformPublisher(rclcpp::Node::SharedPtr node, const std::string& yaml_path, const double& period, const bool& commit = true);
 
-  bool add(const geometry_msgs::msg::TransformStamped& transform, const std::chrono::milliseconds& period);
+  bool add(const geometry_msgs::msg::TransformStamped& transform, const std::chrono::duration<double>& period);
 
   std::vector<geometry_msgs::msg::TransformStamped> getAllTransforms() const;
 
+  bool savePublishers(const std::string& yaml_path);
+
 private:
+  bool loadAndAddPublishers(const std::string& yaml_path);
+
   bool setTransformCallback(const std::shared_ptr<rmw_request_id_t> request_header,
                             const std::shared_ptr<mutable_transform_publisher_msgs::srv::SetTransform::Request> req,
                             std::shared_ptr<mutable_transform_publisher_msgs::srv::SetTransform::Response> res);
@@ -36,6 +41,9 @@ private:
   tf2_ros::TransformBroadcaster broadcaster_;
   rclcpp::Service<mutable_transform_publisher_msgs::srv::SetTransform>::SharedPtr set_transform_server_;
   std::map<std::string, std::unique_ptr<Publisher>> pub_map_;
+  std::string yaml_path_;
+  std::chrono::duration<double> period_;
+  bool commit_;
 };
 
 }

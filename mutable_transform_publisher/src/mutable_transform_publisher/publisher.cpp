@@ -4,7 +4,7 @@
 
 mutable_transform_publisher::Publisher::Publisher(const std::string& source,
                                                   const std::string& target,
-                                                  const std::chrono::milliseconds& period,
+                                                  const std::chrono::duration<double>& period,
                                                   const geometry_msgs::msg::Transform& init_tf,
                                                   tf2_ros::TransformBroadcaster& broadcaster,
                                                   std::shared_ptr<rclcpp::Node> node)
@@ -16,7 +16,7 @@ mutable_transform_publisher::Publisher::Publisher(const std::string& source,
   tf_.transform = init_tf;
   tf_.header.frame_id = source;
   tf_.child_frame_id = target;
-  pub_timer_ = node_ -> create_wall_timer(std::chrono::milliseconds(period), std::bind(&Publisher::onPublishTimeout, this));
+  pub_timer_ = node_ -> create_wall_timer(period, std::bind(&Publisher::onPublishTimeout, this));
 }
 
 geometry_msgs::msg::TransformStamped mutable_transform_publisher::Publisher::setTransform(const geometry_msgs::msg::Transform& t)

@@ -3,41 +3,6 @@
 #include "mutable_transform_publisher/mutable_transform_publisher.h"
 #include "mutable_transform_publisher/yaml_serialization.h"
 
-bool loadAndAddPublishers(const std::string& yaml_path,
-                          mutable_transform_publisher::MutableTransformPublisher& pub)
-{
-  std::vector<geometry_msgs::msg::TransformStamped> tfs;
-  if (!mutable_transform_publisher::deserialize(yaml_path, tfs))
-  {
-       // TODO: Print error for ROS2
-//    RCLCPP_ERROR(node->get_logger(), "Unable to add transform");
-    return false;
-  }
-
-  for (const auto& t : tfs)
-  {
-    if (!pub.add(t, std::chrono::milliseconds(1000)))
-    {
-        // TODO: Print error for ROS2
-//      RCLCPP_ERROR(node->get_logger(), "Unable to add transform");
-      return false;
-    }
-  }
-  return true;
-}
-
-bool savePublishers(const std::string& yaml_path,
-                    const mutable_transform_publisher::MutableTransformPublisher& pub)
-{
-  const auto new_tfs = pub.getAllTransforms();
-
-  if (!mutable_transform_publisher::serialize(yaml_path, new_tfs))
-  {
-    std::cerr << "mutable_transform_publisher: Unable to serialize transforms to " << yaml_path << "\n";
-    return false;
-  }
-  return true;
-}
 
 int main(int argc, char** argv)
 {
@@ -45,6 +10,10 @@ int main(int argc, char** argv)
   auto node = rclcpp::Node::make_shared("mutable_tf_publisher");
 
   node->declare_parameter("yaml_path");
+  node->declare_parameter("period");
+
+  double period;
+  node->get_parameter_or<double>("period", period, 0.1);
 
   bool yaml_specified = false;
   std::string yaml_path_param;
@@ -54,23 +23,24 @@ int main(int argc, char** argv)
   } catch (std::runtime_error &e) {
       RCLCPP_INFO(node->get_logger(), "yaml_path param not set");
   }
+
+  if (!yaml_specified)
+  {
+    RCLCPP_ERROR(node->get_logger(), "required param yaml_path not found: aborting");
+    return -1;
+  }
+
   bool commit;
   node->get_parameter_or<bool>("commit", commit, true);
 
   // Create the publisher
-  mutable_transform_publisher::MutableTransformPublisher pub(node);
-
-  if (yaml_specified)
-  {
-    if (!loadAndAddPublishers(yaml_path_param, pub)) return 1;
-    RCLCPP_INFO(node->get_logger(), "Added publishers");
-  }
+  mutable_transform_publisher::MutableTransformPublisher pub(node, yaml_path_param, period, commit);
 
   rclcpp::spin(node);
 
   if (yaml_specified && commit)
   {
-    if (!savePublishers(yaml_path_param, pub)) return 2;
+    if (!pub.savePublishers(yaml_path_param)) return 2;
     RCLCPP_INFO(node->get_logger(), "Saving updated yaml config");
   }
 

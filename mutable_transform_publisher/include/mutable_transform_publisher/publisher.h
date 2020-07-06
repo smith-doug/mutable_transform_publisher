@@ -14,7 +14,7 @@ class Publisher
 public:
   Publisher(const std::string& source,
             const std::string& target,
-            const std::chrono::milliseconds& period,
+            const std::chrono::duration<double>& period,
             const geometry_msgs::msg::Transform& init_tf,
             tf2_ros::TransformBroadcaster& broadcaster,
             std::shared_ptr<rclcpp::Node> node);
