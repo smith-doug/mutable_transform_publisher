@@ -74,10 +74,6 @@ ament_target_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGET
 
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${PROJECT_NAME}_yaml)
 
-if(BUILD_TESTING)
-  add_launch_test(test/launch_testing/mutable_transform_publisher_launch_test.py)
-endif()
-
 ament_export_include_directories(include
                                 ${YAML_CPP_INCLUDE_DIRS}
                                 )
@@ -109,11 +105,18 @@ install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
 install(TARGETS ${PROJECT_NAME}_node
         DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY test
-        DESTINATION share/${PROJECT_NAME})
-
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}
  DESTINATION ${ROS_INCLUDE_DESTINATION}
  FILES_MATCHING PATTERN "*.h"
 )
+
+##########
+## Test ##
+##########
+
+if(BUILD_TESTING)
+  add_launch_test(test/launch_testing/mutable_transform_publisher_launch_test.py)
+  install(DIRECTORY test
+          DESTINATION share/${PROJECT_NAME})
+endif()
