@@ -12,6 +12,7 @@ jobs:
              ROS_DISTRO: eloquent,
              BADGE: bionic,
              DOCKER_PULL: false,
+             ADDITIONAL_DEBS: 'ros-eloquent-launch-testing-ament-cmake',
              }
 
     runs-on: ubuntu-latest
