@@ -1,0 +1,9 @@
+- qx: 0
+  qz: 0
+  qw: 1
+  y: 1
+  x: 0
+  parent: foo
+  qy: 0
+  child: bar
+  z: 2

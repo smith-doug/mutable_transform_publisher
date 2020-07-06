@@ -17,6 +17,8 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
+find_package(launch_testing_ament_cmake REQUIRED)
+
 ###########
 ## Build ##
 ###########
@@ -72,6 +74,8 @@ ament_target_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGET
 
 target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME} ${PROJECT_NAME}_yaml)
 
+add_launch_test(test/launch_testing/mutable_transform_publisher_launch_test.py)
+
 ament_export_include_directories(include
                                 ${YAML_CPP_INCLUDE_DIRS}
                                 )
@@ -102,6 +106,9 @@ install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_yaml ${PROJECT_NAME}_node
 
 install(TARGETS ${PROJECT_NAME}_node
         DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY test
+        DESTINATION share/${PROJECT_NAME})
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}
