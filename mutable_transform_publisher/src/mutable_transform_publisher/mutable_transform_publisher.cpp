@@ -46,7 +46,7 @@ bool mutable_transform_publisher::MutableTransformPublisher::loadAndAddPublisher
 
   for (const auto& t : tfs)
   {
-    if (!this->add(t, std::chrono::milliseconds(1000)))
+    if (!this->add(t, std::chrono::duration<double>(period_)))
     {
       RCLCPP_ERROR(node_->get_logger(), "Unable to add transform");
       return false;
