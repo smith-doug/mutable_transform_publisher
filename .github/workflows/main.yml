@@ -12,6 +12,7 @@ jobs:
              ROS_DISTRO: eloquent,
              BADGE: bionic,
              DOCKER_PULL: false,
+             TARGET_CMAKE_ARGS: "-DBUILD_TESTING=ON",
              }
 
     runs-on: ubuntu-latest
