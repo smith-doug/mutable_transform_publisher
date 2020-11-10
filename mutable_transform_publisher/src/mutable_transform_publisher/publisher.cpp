@@ -9,6 +9,7 @@ mutable_transform_publisher::Publisher::Publisher(const std::string& source,
                                                   tf2_ros::TransformBroadcaster& broadcaster,
                                                   std::shared_ptr<rclcpp::Node> node)
   : node_(node)
+  , clock_(std::make_shared<rclcpp::Clock>())  // TODO: better to use node's clock, but it gives all zeros sometimes
   , source_(source)
   , target_(target)
   , broadcaster_(broadcaster)
@@ -33,6 +34,6 @@ geometry_msgs::msg::TransformStamped mutable_transform_publisher::Publisher::get
 
 void mutable_transform_publisher::Publisher::onPublishTimeout()
 {
-  tf_.header.stamp = node_->now();
+  tf_.header.stamp = clock_->now();
   broadcaster_.sendTransform(tf_);
 }

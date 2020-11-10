@@ -27,6 +27,7 @@ private:
   void onPublishTimeout();
 
   std::shared_ptr<rclcpp::Node> node_;
+  std::shared_ptr<rclcpp::Clock> clock_;
   std::string source_;
   std::string target_;
   geometry_msgs::msg::TransformStamped tf_;
