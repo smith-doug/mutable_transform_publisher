@@ -12,14 +12,15 @@ namespace mutable_transform_publisher
 class Publisher
 {
 public:
-  Publisher(const std::string& source,
-            const std::string& target,
-            const std::chrono::duration<double>& period,
-            const geometry_msgs::msg::Transform& init_tf,
-            tf2_ros::TransformBroadcaster& broadcaster,
-            std::shared_ptr<rclcpp::Node> node);
+  Publisher(
+    const std::string & source,
+    const std::string & target,
+    const std::chrono::duration<double> & period,
+    const geometry_msgs::msg::Transform & init_tf,
+    tf2_ros::TransformBroadcaster & broadcaster,
+    std::shared_ptr<rclcpp::Node> node);
 
-  geometry_msgs::msg::TransformStamped setTransform(const geometry_msgs::msg::Transform& t);
+  geometry_msgs::msg::TransformStamped setTransform(const geometry_msgs::msg::Transform & t);
 
   geometry_msgs::msg::TransformStamped getTransform() const;
 
@@ -32,9 +33,9 @@ private:
   std::string target_;
   geometry_msgs::msg::TransformStamped tf_;
   rclcpp::TimerBase::SharedPtr pub_timer_;
-  tf2_ros::TransformBroadcaster& broadcaster_;
+  tf2_ros::TransformBroadcaster & broadcaster_;
 };
 
-}
+} // namespace mutable_transform_publisher
 
 #endif // MCT_PUBLISHER_H

@@ -6,10 +6,12 @@
 namespace mutable_transform_publisher
 {
 
-bool deserialize(const std::string& path, std::vector<geometry_msgs::msg::TransformStamped>& tfs);
+bool deserialize(const std::string & path, std::vector<geometry_msgs::msg::TransformStamped> & tfs);
 
-bool serialize(const std::string& path, const std::vector<geometry_msgs::msg::TransformStamped>& tfs);
+bool serialize(
+  const std::string & path,
+  const std::vector<geometry_msgs::msg::TransformStamped> & tfs);
 
-}
+} // namespace mutable_transform_publisher
 
 #endif // MTP_YAML_SERIALIZATION_H

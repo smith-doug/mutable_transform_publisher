@@ -4,7 +4,7 @@
 #include "mutable_transform_publisher/yaml_serialization.h"
 
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("mutable_tf_publisher");
@@ -18,14 +18,13 @@ int main(int argc, char** argv)
   bool yaml_specified = false;
   std::string yaml_path_param;
   try {
-      node->get_parameter<std::string>("yaml_path", yaml_path_param);
-      yaml_specified = true;
-  } catch (std::runtime_error &e) {
-      RCLCPP_INFO(node->get_logger(), "yaml_path param not set");
+    node->get_parameter<std::string>("yaml_path", yaml_path_param);
+    yaml_specified = true;
+  } catch (std::runtime_error & e) {
+    RCLCPP_INFO(node->get_logger(), "yaml_path param not set");
   }
 
-  if (!yaml_specified)
-  {
+  if (!yaml_specified) {
     RCLCPP_ERROR(node->get_logger(), "required param yaml_path not found: aborting");
     return -1;
   }
@@ -38,9 +37,8 @@ int main(int argc, char** argv)
 
   rclcpp::spin(node);
 
-  if (yaml_specified && commit)
-  {
-    if (!pub.savePublishers(yaml_path_param)) return 2;
+  if (yaml_specified && commit) {
+    if (!pub.savePublishers(yaml_path_param)) {return 2;}
     RCLCPP_INFO(node->get_logger(), "Saving updated yaml config");
   }
 

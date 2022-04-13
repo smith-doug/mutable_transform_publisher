@@ -2,7 +2,7 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
-static geometry_msgs::msg::TransformStamped parseTransform(const YAML::Node& n)
+static geometry_msgs::msg::TransformStamped parseTransform(const YAML::Node & n)
 {
   geometry_msgs::msg::TransformStamped t;
   t.header.frame_id = n["parent"].as<std::string>();
@@ -20,7 +20,7 @@ static geometry_msgs::msg::TransformStamped parseTransform(const YAML::Node& n)
   return t;
 }
 
-static YAML::Node convertTransform(const geometry_msgs::msg::TransformStamped& t)
+static YAML::Node convertTransform(const geometry_msgs::msg::TransformStamped & t)
 {
   YAML::Node n;
   n["parent"] = t.header.frame_id;
@@ -35,36 +35,35 @@ static YAML::Node convertTransform(const geometry_msgs::msg::TransformStamped& t
   return n;
 }
 
-bool mutable_transform_publisher::deserialize(const std::string& path, std::vector<geometry_msgs::msg::TransformStamped>& tfs)
+bool mutable_transform_publisher::deserialize(
+  const std::string & path,
+  std::vector<geometry_msgs::msg::TransformStamped> & tfs)
 {
-  try
-  {
+  try {
     YAML::Node root = YAML::LoadFile(path);
-    for (std::size_t i = 0; i < root.size(); ++i)
-    {
+    for (std::size_t i = 0; i < root.size(); ++i) {
       const auto t = parseTransform(root[i]);
       tfs.push_back(t);
     }
 
     return true;
-  }
-  catch (const YAML::Exception& e)
-  {
+  } catch (const YAML::Exception & e) {
 // TODO: Print this in ROS2-Land
 //    ROS_ERROR_STREAM(e.what());
     return false;
   }
 }
 
-bool mutable_transform_publisher::serialize(const std::string& path, const std::vector<geometry_msgs::msg::TransformStamped>& tfs)
+bool mutable_transform_publisher::serialize(
+  const std::string & path,
+  const std::vector<geometry_msgs::msg::TransformStamped> & tfs)
 {
   YAML::Node root;
-  for (const auto& t : tfs)
-  {
+  for (const auto & t : tfs) {
     root.push_back(convertTransform(t));
   }
 
-  std::ofstream ofh (path);
+  std::ofstream ofh(path);
   ofh << root;
   return true;
 }
