@@ -66,7 +66,9 @@ bool mutable_transform_publisher::MutableTransformPublisher::savePublishers(
   const auto new_tfs = this->getAllTransforms();
 
   if (!mutable_transform_publisher::serialize(yaml_path, new_tfs)) {
-    RCLCPP_ERROR(node_->get_logger(), "Failed to serialize transforms to path: " + yaml_path);
+    RCLCPP_ERROR_STREAM(
+      node_->get_logger(),
+      "Failed to serialize transforms to path: " << yaml_path);
     return false;
   }
   return true;
@@ -102,7 +104,8 @@ bool mutable_transform_publisher::MutableTransformPublisher::setTransformCallbac
 
   if (commit_) {
     if (!this->savePublishers(yaml_path_)) {
-      RCLCPP_ERROR(node_->get_logger(), "Failed to serialize transforms to path: " + yaml_path_);
+      RCLCPP_ERROR_STREAM(
+        node_->get_logger(), "Failed to serialize transforms to path: " << yaml_path_);
     }
 
   }
