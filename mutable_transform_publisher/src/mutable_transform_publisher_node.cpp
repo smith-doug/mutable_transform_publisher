@@ -9,28 +9,28 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("mutable_tf_publisher");
 
-  node->declare_parameter("yaml_path");
-  node->declare_parameter("period");
+  node->declare_parameter<std::string>("yaml_path", "");
+  node->declare_parameter<double>("period", 0.1);
+  node->declare_parameter<bool>("commit", true);
 
   double period;
-  node->get_parameter_or<double>("period", period, 0.1);
+  node->get_parameter("period", period);
+
+  bool commit;
+  node->get_parameter<bool>("commit", commit);
 
   bool yaml_specified = false;
   std::string yaml_path_param;
-  try {
-    node->get_parameter<std::string>("yaml_path", yaml_path_param);
-    yaml_specified = true;
-  } catch (std::runtime_error & e) {
-    RCLCPP_INFO(node->get_logger(), "yaml_path param not set");
-  }
+
+  node->get_parameter<std::string>("yaml_path", yaml_path_param);
+  yaml_specified = yaml_path_param != "";
 
   if (!yaml_specified) {
-    RCLCPP_ERROR(node->get_logger(), "required param yaml_path not found: aborting");
-    return -1;
+    RCLCPP_ERROR(
+      node->get_logger(),
+      "Param yaml_path not found.  Will not save or load transforms");
+    commit = false;
   }
-
-  bool commit;
-  node->get_parameter_or<bool>("commit", commit, true);
 
   // Create the publisher
   mutable_transform_publisher::MutableTransformPublisher pub(node, yaml_path_param, period, commit);

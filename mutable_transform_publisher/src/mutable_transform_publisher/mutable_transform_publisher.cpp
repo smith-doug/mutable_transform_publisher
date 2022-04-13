@@ -45,6 +45,10 @@ bool mutable_transform_publisher::MutableTransformPublisher::add(
 bool mutable_transform_publisher::MutableTransformPublisher::loadAndAddPublishers(
   const std::string & yaml_path)
 {
+  if (yaml_path == "") {
+    RCLCPP_INFO(node_->get_logger(), "No yaml file specified, not loading any transforms");
+    return true;
+  }
   std::vector<geometry_msgs::msg::TransformStamped> tfs;
   if (!mutable_transform_publisher::deserialize(yaml_path, tfs)) {
     RCLCPP_ERROR(node_->get_logger(), "Unable to add transform");
@@ -63,6 +67,10 @@ bool mutable_transform_publisher::MutableTransformPublisher::loadAndAddPublisher
 bool mutable_transform_publisher::MutableTransformPublisher::savePublishers(
   const std::string & yaml_path)
 {
+  if (yaml_path == "") {
+    RCLCPP_INFO_STREAM(node_->get_logger(), "No yaml file specified, not saving transforms");
+    return true;
+  }
   const auto new_tfs = this->getAllTransforms();
 
   if (!mutable_transform_publisher::serialize(yaml_path, new_tfs)) {
